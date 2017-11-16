@@ -18,7 +18,7 @@ class GoogleCloudStorage(Storage):
     def __init__(self, location=None, base_url=None):
         if location is None:
             location = settings.GOOGLE_CLOUD_STORAGE_BUCKET
-        self.location = location
+        self.location = '/' + location
         if base_url is None:
             base_url = '//storage.googleapis.com/{0}/'.format(location)
         self.base_url = base_url
