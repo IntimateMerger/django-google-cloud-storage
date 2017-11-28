@@ -75,7 +75,6 @@ class GoogleCloudStorage(Storage):
             pass
 
     def exists(self, name):
-        name = name.encode('utf-8')
         try:
             self.statFile(name)
             return True
@@ -103,16 +102,13 @@ class GoogleCloudStorage(Storage):
         return directories, files
 
     def size(self, name):
-        name = name.encode('utf-8')
         stats = self.statFile(name)
         return stats.st_size
 
     def accessed_time(self, name):
-        name = name.encode('utf-8')
         raise NotImplementedError
 
     def created_time(self, name):
-        name = name.encode('utf-8')
         stats = self.statFile(name)
         return stats.st_ctime
 
