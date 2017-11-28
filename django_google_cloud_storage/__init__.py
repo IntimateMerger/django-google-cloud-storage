@@ -9,7 +9,7 @@ from django.core.files.storage import Storage
 from google.appengine.api.blobstore import create_gs_key
 import cloudstorage as gcs
 
-__author__ = "ckopanos@redmob.gr, me@rchrd.net"
+__author__ = "mats.kazuki@gmail.com"
 __license__ = "GNU GENERAL PUBLIC LICENSE"
 
 
@@ -17,10 +17,10 @@ class GoogleCloudStorage(Storage):
 
     def __init__(self, location=None, base_url=None):
         if location is None:
-            location = settings.GOOGLE_CLOUD_STORAGE_BUCKET
-        self.location = '/' + location
+            bucket = settings.GOOGLE_CLOUD_STORAGE_BUCKET
+        self.location = '/' + bucket
         if base_url is None:
-            base_url = '//storage.googleapis.com/{0}/'.format(location)
+            base_url = '//storage.googleapis.com/{0}/'.format(bucket)
         self.base_url = base_url
 
     def _open(self, name, mode='r'):
@@ -119,5 +119,5 @@ class GoogleCloudStorage(Storage):
         return self.base_url + name
 
     def statFile(self, name):
-        filename = self.location + "/" + name
+        filename = self.location + '/' + name
         return gcs.stat(filename)
