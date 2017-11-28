@@ -7,7 +7,6 @@ import os
 import mimetypes
 from django.conf import settings
 from django.core.files.storage import Storage
-from google.appengine.api.blobstore import create_gs_key
 import cloudstorage as gcs
 
 __author__ = "mats.kazuki@gmail.com"
