@@ -24,8 +24,7 @@ class GoogleCloudStorage(Storage):
         self.base_url = base_url
 
     def _open(self, name, mode='r'):
-        name = name.encode('utf-8')
-        filename = self.location + name
+        filename = filename(name)
 
         # rb is not supported
         if mode == 'rb':
@@ -43,8 +42,7 @@ class GoogleCloudStorage(Storage):
         return gcs_file
 
     def _save(self, name, content):
-        name = name.encode('utf-8')
-        filename = self.location + name
+        filename = filename(name)
         filename = os.path.normpath(filename)
         type, encoding = mimetypes.guess_type(name)
         cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
@@ -67,15 +65,13 @@ class GoogleCloudStorage(Storage):
         return name
 
     def delete(self, name):
-        name = name.encode('utf-8')
-        filename = self.location + name
+        filename = filename(name)
         try:
             gcs.delete(filename)
         except gcs.NotFoundError:
             pass
 
     def exists(self, name):
-        name = name.encode('utf-8')
         try:
             self.statFile(name)
             return True
@@ -103,30 +99,28 @@ class GoogleCloudStorage(Storage):
         return directories, files
 
     def size(self, name):
-        name = name.encode('utf-8')
         stats = self.statFile(name)
         return stats.st_size
 
     def accessed_time(self, name):
-        name = name.encode('utf-8')
         raise NotImplementedError
 
     def created_time(self, name):
-        name = name.encode('utf-8')
         stats = self.statFile(name)
         return stats.st_ctime
 
     def modified_time(self, name):
-        name = name.encode('utf-8')
         return self.created_time(name)
 
     def url(self, name):
-        name = name.encode('utf-8')
         server_software = os.getenv("SERVER_SOFTWARE", "")
         if not server_software.startswith("Google App Engine"):
             pass
-        return self.base_url + name
+        return self.base_url + name.encode('utf-8')
 
     def statFile(self, name):
-        filename = self.location + name
+        filename = filename(name)
         return gcs.stat(filename)
+
+    def filename(self, name):
+        return = self.location + name.encode('utf-8')
