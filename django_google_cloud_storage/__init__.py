@@ -17,14 +17,15 @@ class GoogleCloudStorage(Storage):
 
     def __init__(self, location=None, base_url=None):
         if location is None:
-            location = '/' + settings.GOOGLE_CLOUD_STORAGE_BUCKET
+            location = '/' + settings.GOOGLE_CLOUD_STORAGE_BUCKET + '/'
         self.location = location
         if base_url is None:
-            base_url = '//storage.googleapis.com' + location + '/'
+            base_url = '//storage.googleapis.com' + location
         self.base_url = base_url
 
     def _open(self, name, mode='r'):
-        filename = self.location + "/" + name
+        name = name.encode('utf-8')
+        filename = self.location + name
 
         # rb is not supported
         if mode == 'rb':
@@ -42,7 +43,8 @@ class GoogleCloudStorage(Storage):
         return gcs_file
 
     def _save(self, name, content):
-        filename = self.location + "/" + name
+        name = name.encode('utf-8')
+        filename = self.location + name
         filename = os.path.normpath(filename)
         type, encoding = mimetypes.guess_type(name)
         cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
@@ -65,13 +67,15 @@ class GoogleCloudStorage(Storage):
         return name
 
     def delete(self, name):
-        filename = self.location+"/"+name
+        name = name.encode('utf-8')
+        filename = self.location + name
         try:
             gcs.delete(filename)
         except gcs.NotFoundError:
             pass
 
     def exists(self, name):
+        name = name.encode('utf-8')
         try:
             self.statFile(name)
             return True
@@ -99,20 +103,25 @@ class GoogleCloudStorage(Storage):
         return directories, files
 
     def size(self, name):
+        name = name.encode('utf-8')
         stats = self.statFile(name)
         return stats.st_size
 
     def accessed_time(self, name):
+        name = name.encode('utf-8')
         raise NotImplementedError
 
     def created_time(self, name):
+        name = name.encode('utf-8')
         stats = self.statFile(name)
         return stats.st_ctime
 
     def modified_time(self, name):
+        name = name.encode('utf-8')
         return self.created_time(name)
 
     def url(self, name):
+        name = name.encode('utf-8')
         server_software = os.getenv("SERVER_SOFTWARE", "")
         if not server_software.startswith("Google App Engine"):
             pass
@@ -120,5 +129,5 @@ class GoogleCloudStorage(Storage):
 
     def statFile(self, name):
         name = name.encode('utf-8')
-        filename = self.location + '/' + name
+        filename = self.location + name
         return gcs.stat(filename)
