@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.files.storage import Storage
 import cloudstorage as gcs
 
-__author__ = "mats.kazuki@gmail.com"
+__author__ = "kazuki.matsuda@intimatemerger.com"
 __license__ = "GNU GENERAL PUBLIC LICENSE"
 
 
