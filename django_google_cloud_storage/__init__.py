@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Google Cloud Storage file backend for Django
 """
@@ -6,10 +7,9 @@ import os
 import mimetypes
 from django.conf import settings
 from django.core.files.storage import Storage
-from google.appengine.api.blobstore import create_gs_key
 import cloudstorage as gcs
 
-__author__ = "ckopanos@redmob.gr, me@rchrd.net"
+__author__ = "kazuki.matsuda@intimatemerger.com"
 __license__ = "GNU GENERAL PUBLIC LICENSE"
 
 
@@ -17,14 +17,14 @@ class GoogleCloudStorage(Storage):
 
     def __init__(self, location=None, base_url=None):
         if location is None:
-            location = settings.GOOGLE_CLOUD_STORAGE_BUCKET
-        self.location = '/' + location
+            location = '/' + settings.GOOGLE_CLOUD_STORAGE_BUCKET + '/'
+        self.location = location
         if base_url is None:
-            base_url = '//storage.googleapis.com/{0}/'.format(location)
+            base_url = '//storage.googleapis.com' + location
         self.base_url = base_url
 
     def _open(self, name, mode='r'):
-        filename = self.location + "/" + name
+        filename = self.gen_filename(name)
 
         # rb is not supported
         if mode == 'rb':
@@ -42,7 +42,7 @@ class GoogleCloudStorage(Storage):
         return gcs_file
 
     def _save(self, name, content):
-        filename = self.location + "/" + name
+        filename = self.gen_filename(name)
         filename = os.path.normpath(filename)
         type, encoding = mimetypes.guess_type(name)
         cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
@@ -65,7 +65,7 @@ class GoogleCloudStorage(Storage):
         return name
 
     def delete(self, name):
-        filename = self.location+"/"+name
+        filename = self.gen_filename(name)
         try:
             gcs.delete(filename)
         except gcs.NotFoundError:
@@ -116,8 +116,11 @@ class GoogleCloudStorage(Storage):
         server_software = os.getenv("SERVER_SOFTWARE", "")
         if not server_software.startswith("Google App Engine"):
             pass
-        return self.base_url + name
+        return self.base_url + name.encode('utf-8')
 
     def statFile(self, name):
-        filename = self.location + "/" + name
+        filename = self.gen_filename(name)
         return gcs.stat(filename)
+
+    def gen_filename(self, name):
+        return self.location + name.encode('utf-8')
