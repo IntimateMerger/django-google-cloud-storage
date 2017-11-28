@@ -24,7 +24,7 @@ class GoogleCloudStorage(Storage):
         self.base_url = base_url
 
     def _open(self, name, mode='r'):
-        filename = filename(name)
+        filename = gen_filename(name)
 
         # rb is not supported
         if mode == 'rb':
@@ -42,7 +42,7 @@ class GoogleCloudStorage(Storage):
         return gcs_file
 
     def _save(self, name, content):
-        filename = filename(name)
+        filename = gen_filename(name)
         filename = os.path.normpath(filename)
         type, encoding = mimetypes.guess_type(name)
         cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
@@ -65,7 +65,7 @@ class GoogleCloudStorage(Storage):
         return name
 
     def delete(self, name):
-        filename = filename(name)
+        filename = gen_filename(name)
         try:
             gcs.delete(filename)
         except gcs.NotFoundError:
@@ -119,8 +119,8 @@ class GoogleCloudStorage(Storage):
         return self.base_url + name.encode('utf-8')
 
     def statFile(self, name):
-        filename = filename(name)
+        filename = gen_filename(name)
         return gcs.stat(filename)
 
-    def filename(self, name):
-        return = self.location + name.encode('utf-8')
+    def gen_filename(self, name):
+        return self.location + name.encode('utf-8')
