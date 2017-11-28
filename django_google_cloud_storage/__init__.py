@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Google Cloud Storage file backend for Django
 """
