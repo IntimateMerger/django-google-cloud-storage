@@ -119,5 +119,6 @@ class GoogleCloudStorage(Storage):
         return self.base_url + name
 
     def statFile(self, name):
+        name = name.encode('utf-8')
         filename = self.location + '/' + name
         return gcs.stat(filename)
