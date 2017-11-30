@@ -36,7 +36,8 @@ Configuration
 
 On your django settings.py file you need to add the following settings
 
-    GOOGLE_CLOUD_STORAGE_BUCKET = 'your_bucket_name' # the name of the bucket you have created from the google cloud storage console
+    GOOGLE_CLOUD_STORAGE_BUCKET = 'your_bucket_name'
+    GOOGLE_CLOUD_STORAGE_URL = '//storage.googleapis.com/your_bucket_name/'
     GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL = 'public, max-age: 7200' # default cache control headers for your files
 
 And finally declare the file storage backend you will use on your settings.py file
