@@ -32,10 +32,10 @@ class GoogleCloudStorage(Storage):
 
         if mode == 'w':
             type, encoding = mimetypes.guess_type(name)
-            cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
-            gcs_file = gcs.open(filename, mode=mode, content_type=type,
-                                options={'x-goog-acl': 'public-read',
-                                         'cache-control': cache_control})
+            options = {'cache-control': settings.GOOGLE_CLOUD_STORAGE_CACHE_CONTROL}
+            if self.enable_public(filename):
+                options['x-goog-acl'] = 'public-read'
+            gcs_file = gcs.open(filename, mode=mode, content_type=type, options=options)
         else:
             gcs_file = gcs.open(filename, mode=mode)
 
@@ -45,13 +45,13 @@ class GoogleCloudStorage(Storage):
         filename = self.gen_filename(name)
         filename = os.path.normpath(filename)
         type, encoding = mimetypes.guess_type(name)
-        cache_control = settings.GOOGLE_CLOUD_STORAGE_DEFAULT_CACHE_CONTROL
+        options = {'cache-control': settings.GOOGLE_CLOUD_STORAGE_CACHE_CONTROL}
+        if self.enable_public(filename):
+            options['x-goog-acl'] = 'public-read'
 
         # Files are stored with public-read permissions.
         # Check out the google acl options if you need to alter this.
-        gss_file = gcs.open(filename, mode='w', content_type=type,
-                            options={'x-goog-acl': 'public-read',
-                                     'cache-control': cache_control})
+        gss_file = gcs.open(filename, mode='w', content_type=type, options=options)
         try:
             content.open()
         except:
@@ -73,7 +73,7 @@ class GoogleCloudStorage(Storage):
 
     def exists(self, name):
         try:
-            self.statFile(name)
+            self.stat_file(name)
             return True
         except gcs.NotFoundError:
             return False
@@ -94,19 +94,19 @@ class GoogleCloudStorage(Storage):
                 if not head.startswith("/"):
                     head = "/" + head
                 dir = head.split("/")[1]
-                if not dir in directories:
+                if dir not in directories:
                     directories.append(dir)
         return directories, files
 
     def size(self, name):
-        stats = self.statFile(name)
+        stats = self.stat_file(name)
         return stats.st_size
 
     def accessed_time(self, name):
         raise NotImplementedError
 
     def created_time(self, name):
-        stats = self.statFile(name)
+        stats = self.stat_file(name)
         return stats.st_ctime
 
     def modified_time(self, name):
@@ -118,9 +118,15 @@ class GoogleCloudStorage(Storage):
             pass
         return self.base_url + name.encode('utf-8')
 
-    def statFile(self, name):
+    def stat_file(self, name):
         filename = self.gen_filename(name)
         return gcs.stat(filename)
 
     def gen_filename(self, name):
         return self.location + name.encode('utf-8')
+
+    def enable_public(self, filename):
+        if filename.startswith(self.location + 'documents/'):  # for Wagtail
+            return False
+        else:
+            return True
