@@ -20,7 +20,7 @@ class GoogleCloudStorage(Storage):
             location = '/' + settings.GOOGLE_CLOUD_STORAGE_BUCKET + '/'
         self.location = location
         if base_url is None:
-            base_url = '//storage.googleapis.com' + location
+            base_url = settings.GOOGLE_CLOUD_STORAGE_URL
         self.base_url = base_url
 
     def _open(self, name, mode='r'):
